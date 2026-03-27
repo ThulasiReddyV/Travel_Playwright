@@ -16,13 +16,20 @@ class BusPage(HomePage):
         self.dark_pop_up_loc = ".Tooltip-Tip.bottom.dark"
         self.proceed = page.get_by_role("button", name="Proceed")
         self.skip = page.get_by_text("Skip")
-
+        self.no_servie_msg = page.get_by_role("heading", level=5)
         
         
 
     def avb(self):
-        
-        print(self.available_buses.text_content())
+        try:
+            print(self.available_buses.text_content())
+        except:
+            try:
+                print(f"{self.no_servie_msg.text_content()}")
+            except TimeoutError:
+                return
+
+
 
     def view_service_provider(self):
         self.page.wait_for_timeout(3000)
