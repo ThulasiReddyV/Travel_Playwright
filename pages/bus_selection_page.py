@@ -1,6 +1,6 @@
 from playwright.sync_api import Page,expect,TimeoutError
 from pages.home_page import HomePage
-
+import re
 
 class BusPage(HomePage):
 
@@ -9,6 +9,15 @@ class BusPage(HomePage):
         
         self.available_buses = page.locator(".buses-availability")
         self.service_pro_group_card = page.locator("#group-service-TGSRTC")
+        self.bp_dp_container = page.locator(".row.seating-place-selector")
+        self.all_seats = page.locator(".Tooltip-Wrapper")
+
+        self.radio_container =  ".container.radio-container.light.neutral.lg"
+        self.dark_pop_up_loc = ".Tooltip-Tip.bottom.dark"
+        self.proceed = page.get_by_role("button", name="Proceed")
+        self.skip = page.get_by_text("Skip")
+
+        
         
 
     def avb(self):
@@ -18,7 +27,6 @@ class BusPage(HomePage):
     def view_service_provider(self):
         self.page.wait_for_timeout(3000)
 
-        #self.service_pro_group_card.scroll_into_view_if_needed()
         service_provider_buses_info = self.service_pro_group_card.locator(".text-truncate").all()
 
         for ele in service_provider_buses_info:
@@ -33,34 +41,77 @@ class BusPage(HomePage):
 
     def find_bus(self,service_no):
    
-        self.whole_bus_conatiner = self.service_pro_group_card.locator(".row.card-body.service-info").filter(has_text=service_no)
-        if self.whole_bus_conatiner.count() == 0:
+        self.whole_bus_container = self.service_pro_group_card.locator(".container.card.service.light.rounded-md").filter(has_text=service_no)
+        if self.whole_bus_container.count() == 0:
             print(f"No bus with {service_no}")
             return
         
-        """self.bus_info = whole_bus_conatiner.first
-        self.bus_info.wait_for(state="visible",timeout=10000)
-        self.bus_info.scroll_into_view_if_needed()
-        self.page.wait_for_timeout(5000)"""
-        
-        #self.parent = self.whole_bus_conatiner.locator(".row.card-body.service-info")
-
-        self.select_seat = self.whole_bus_conatiner.locator("button[id*='service']").filter(has_text="Select Seats")
+        self.select_seat = self.whole_bus_container.locator("button[id*='service']").filter(has_text="Select Seats")
         self.select_seat.wait_for(state="visible",timeout=10000)
-        #print(f"{self.select_seat.text_content()}")
 
         self.select_seat.click()
-        no_bss  = self.whole_bus_conatiner.filter(has_text="Hide Seats")
+        no_bss  = self.whole_bus_container.filter(has_text="Hide Seats")
         if no_bss.count() == 1:
-            print(f" {service_no} Seats expanded ")
+            print(f"{service_no} Bus found ")
         else:
-            print(f" {service_no} Seats not found ")
+            print(f"{service_no} Bus not found ")
         self.page.wait_for_timeout(5000)
+
+    def select_bp_dp(self,data):
+
+        if self.bp_dp_container.count() >1:
+            print("Many Boarding Points and Dropping Points opened")
+            return
+        
+        self.bp_text = self.bp_dp_container.locator(self.radio_container).filter(has_text=data["boarding_pt"].capitalize())
+        self.bp_text.wait_for(state="visible", timeout=1000)
+        print(f"{self.bp_text.text_content()}")
+        self.bp_text.click(force=True)
+
+
+        self.dp_text = self.bp_dp_container.locator(self.radio_container).filter(has_text=data["dropping_pt"].capitalize())
+        self.dp_text.wait_for(state="visible", timeout=1000)
+        print(f"{self.dp_text.text_content()}")
+        self.dp_text.click(force=True)
+        
 
     def find_seat(self,seat_no):
 
+        #.page.wait_for_timeout(5000)  
+        self.all_seats.first.wait_for(state="visible", timeout=10000)
 
-        pass
+        all_seats_ele = self.all_seats.all()
+        print(f"Total seats: {len(all_seats_ele)}")
+
+        for seat in all_seats_ele:
+            
+            seat.hover()
+            self.page.wait_for_timeout(300)  
+            seat.scroll_into_view_if_needed()
+     
+            try:
+                self.dark_pop_up = seat.locator(self.dark_pop_up_loc)
+            
+                desired_seat = self.dark_pop_up.locator("span").filter(has_text=re.compile(rf"^{seat_no}$"))  
+                desired_seat.wait_for(state="visible", timeout=250)
+                desired_seat.scroll_into_view_if_needed()
+                print(f"{desired_seat.text_content()} is selected")
+                seat.click()
+
+                return True
+            except TimeoutError:
+                continue
+                    
+        print(f"Seat {seat_no} already booked or not found")
+        return False
+
+
+    def proceed_to_enter_details(self):
+        self.proceed.click()
+        self.skip.wait_for(state="visible", timeout=1000)
+        self.skip.click()
+
+        
 
 
 

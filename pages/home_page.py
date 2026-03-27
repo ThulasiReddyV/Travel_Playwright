@@ -20,17 +20,22 @@ class HomePage:
         self.from_city.click()
         self.from_city.fill(city)
         self.suggestion.click()
+        print(f"\nFrom: {self.from_city.get_attribute('value')}")
 
     def enter_to(self,city):   
         self.to_city.click()
         self.to_city.fill(city)
         self.suggestion.click()
+        print(f"To: {self.to_city.get_attribute('value')}")
+
 
     def select_date_of_journey(self, date):
         self.calender.click()
         day,month,year = dd_mm_yy_convert(date)
         dept_date = f'a[role="button"][data-date="{day}"][data-month="{month}"][data-year="{year}"]'
         self.departure_date = self.page.locator(dept_date).click()
+        print(f"Date of Journey: {self.calender.get_attribute('value')}")
+
 
 
     def travel_details(self,data):
