@@ -1,4 +1,5 @@
 from playwright.sync_api import Page,expect,TimeoutError
+from pages.base_page  import BasePage
 from pages.home_page import HomePage
 import re
 
@@ -20,17 +21,32 @@ class BusPage(HomePage):
         
         
 
-    def avb(self):
+    def avb_buses_count(self):
+        msg = ""
+        buses_count = []
         try:
-            print(self.available_buses.text_content())
-        except:
-            try:
-                print(f"{self.no_servie_msg.text_content()}")
-            except TimeoutError:
-                return
+            msg = self.available_buses.text_content()
+            print(msg)
+            buses_count = re.findall(r'\d+', msg)
+            
+                
+        except TimeoutError:
+            pass
+        return len(buses_count)  ,msg   
 
 
+           
+    def no_service_msg_fun(self):
+        no_ser_msg=""
+        try:
+            no_ser_msg = self.no_servie_msg.text_content()
+            print(no_ser_msg)
+            return no_ser_msg
 
+        except TimeoutError:
+            pass
+    
+    
     def view_service_provider(self):
         self.page.wait_for_timeout(3000)
 
@@ -50,8 +66,8 @@ class BusPage(HomePage):
    
         self.whole_bus_container = self.service_pro_group_card.locator(".container.card.service.light.rounded-md").filter(has_text=service_no)
         if self.whole_bus_container.count() == 0:
-            print(f"No bus with {service_no}")
-            return
+            print(f"No bus Container with {service_no}")
+            return 
         
         self.select_seat = self.whole_bus_container.locator("button[id*='service']").filter(has_text="Select Seats")
         self.select_seat.wait_for(state="visible",timeout=10000)
@@ -60,11 +76,14 @@ class BusPage(HomePage):
         no_bss  = self.whole_bus_container.filter(has_text="Hide Seats")
         if no_bss.count() == 1:
             print(f"{service_no} Bus found ")
+            return False
+
         else:
             print(f"{service_no} Bus not found ")
-        self.page.wait_for_timeout(5000)
+            return True
 
     def select_bp_dp(self,data):
+        self.page.wait_for_timeout(5000)
 
         if self.bp_dp_container.count() >1:
             print("Many Boarding Points and Dropping Points opened")
