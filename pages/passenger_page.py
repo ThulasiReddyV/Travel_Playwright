@@ -8,10 +8,11 @@ class PassengerPage(HomePage):
     def __init__(self,page: Page):
         self.page = page
         self.mobile_num =page.get_by_role("textbox", name="Mobile Number")
-        self.email =page.get_by_role("textbox", name="Email ID")
-        self.name =page.get_by_role("textbox", name="Name")
-        self.age =page.get_by_role("textbox", name="Age")
+        self.email = page.get_by_role("textbox", name="Email ID")
+        self.name = page.get_by_role("textbox", name="Name")
+        self.age = page.get_by_role("textbox", name="Age")
         self.continue_to_Pay_btn = page.get_by_text(re.compile(r"^Continue to Pay"))
+        self.entry_missed_error = page.locator(".container.single-error-msg")
 
 
 
@@ -71,8 +72,18 @@ class PassengerPage(HomePage):
         print(f"Email:{passenger_email.get_attribute('value')}")
 
     def continue_to_Pay(self):
+
+        print(f"{self.continue_to_Pay_btn.text_content()}")
         self.continue_to_Pay_btn.click()
-        self.page.wait_for_timeout(10000)
+        #self.page.wait_for_timeout(10000)
+         
+        try:
+            
+            self.entry_missed_error.wait_for(state="visible", timeout=3000)
+            print(f"Entry Missed: {self.entry_missed_error.text_content()}")
+            return False
+        except TimeoutError:
+            return True
 
 
 

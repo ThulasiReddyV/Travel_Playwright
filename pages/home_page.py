@@ -56,7 +56,7 @@ class HomePage(BasePage):
        
     
     def in_month(self, departure_date, attempts=0):
-        if attempts >= 3:
+        if attempts > 3:
             print("Could not find date after 3 months")
             return
         try:
@@ -87,5 +87,12 @@ class HomePage(BasePage):
     
     def search_by_details(self):
         self.submit.click()
+        try:
+            
+            self.error.wait_for(state="visible", timeout=3000)
+            print(f"Entry Missed: {self.error.text_content()}")
+            return False
+        except PlaywrightTimeoutError:
+            return True
 
       

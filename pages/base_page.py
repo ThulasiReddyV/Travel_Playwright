@@ -12,6 +12,7 @@ class BasePage:
         self.page = page
 
         self.error = page.locator(".error")
+        self.pass_error = page.locator(".container.single-error-msg")
 
     def to_proceed(self,info,test_case_id):
         if not info :
@@ -19,9 +20,4 @@ class BasePage:
             return False
         return True
         
-    def check_missed_entry(self):
-        if self.error.count() > 0:
-            print(f"Entry missed of {self.error.count()}")
-            counts = self.error.all()
-            for i in counts:
-                print(f"{i.text_content}")
+   

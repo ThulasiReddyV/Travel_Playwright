@@ -1,21 +1,22 @@
- [
-        {
-        "test_case_id":"Test_006 Seat onhold",
+[
+    
+    {
+        "test_case_id":"Test_006 Valid Date and Route",
         "from_loc" : "HYDERABAD",
         "to_loc" : "TIRUPATI",
-        "date_of_journey" : "30/5/2026",
+        "date_of_journey" : "02/04/2026",
         "bus_ser_no" : "1453",
-        "boarding_pt" : "Mgbs",
+        "boarding_pt" : "MGBS",
         "dropping_pt" : "TIRUPATI BS",
-        "seat_no" : "3",
+        "seat_no" : "18",
         "pass_gender" : "Male",
-        "pass_name" : "",
+        "pass_name" : "Ttt",
         "pass_age" : "24",
         "pass_email" : "Ttt@gmail.com",
         "pass_mobile" : "9012345678",
-        "error_or_message" : "Seat is currently unavailable for booking"
+        "error_or_message" : "Seat is available and Payment Processed"
 
     }
 
-
  ]
+
